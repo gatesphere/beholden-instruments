@@ -2,7 +2,7 @@
 
 // Circuit:
 // Three pots wired into A0, A1, A2
-// Output on 9, through 220R resistor and  ~1uF cap (match what is on Lamewing), into dry/wet mixpot
+// Output on 9, through 220R resistor and  2.2uF cap (match what is on Lamewing), into dry/wet mixpot
 
 #define ALPHA A0
 #define BETA A1
