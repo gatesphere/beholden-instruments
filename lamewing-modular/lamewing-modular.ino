@@ -36,11 +36,11 @@ int amplitude = 0;
 int frequency = 0;
 int out_intensity = 0;
 int out_density = 0;
-int delta = 0;
-int intensity_pot = 0;
-int intensity_cv = 0;
-int density_pot = 0;
-int density_cv = 0;
+long delta = 0;
+float intensity_pot = 0;
+float intensity_cv = 0;
+float density_pot = 0;
+float density_cv = 0;
 long intensity = 0;
 long density = 0;
 long now = 0;
@@ -55,7 +55,7 @@ long before1_drone = 0;
 long timeOscillator0 = 0;
 long timeOscillator0_noise = 0;
 long timeOscillator1 = 0;
-int mode = true; // mode 4 noise -- true = making noise, false = silent
+int mode_noise = true; // mode 4 noise -- true = making noise, false = silent
 
 
 void setup() {
@@ -68,7 +68,8 @@ void setup() {
   pinMode(OUT_WN, OUTPUT);
   pinMode(OUT_DRONE, OUTPUT);
   pinMode(OUT_NOISE, OUTPUT);
-  randomSeed(analogRead(A5)); // unconnected pin, hopefully true random seed 
+  randomSeed(analogRead(A5)); // unconnected pin, hopefully true random seed
+  //Serial.begin(115200);
 }
 
 void loop()
@@ -79,14 +80,26 @@ void loop()
   intensity_pot = analogRead(INTENSITY);
   intensity_cv = analogRead(INTENSITY_CV);
   intensity_cv > 0 ? intensity = intensity_cv * intensity_pot / 1023 : intensity = intensity_pot;
-  
+  //intensity = analogRead(INTENSITY);
+  //Serial.println("intensity");
+  //Serial.println(intensity_pot);
+  //Serial.println(intensity_cv);
+  //Serial.println(intensity);
+
   density_pot = analogRead(DENSITY);
-  density_cv = analogRead(DENSITY);
+  density_cv = analogRead(DENSITY_CV);
   density_cv > 0 ? density = density_cv * density_pot / 1023 : density = density_pot;
+  //density = analogRead(DENSITY);
+  //Serial.println("density");
+  //Serial.println(density_pot);
+  //Serial.println(density_cv);
+  //Serial.println(density);
+  //Serial.println("===");
+  //delay(1000);
   
   // mode 0 - dual oscillator mode
-  timeOscillator0 = map(intensity, 0, 1023, 50000, 6000) + random(1000);
-  timeOscillator1 = map(density, 0, 1023, 50000, 6000) + random(1000);
+  timeOscillator0 = map(intensity, 0, 1023, 50000, 600) + random(1000);
+  timeOscillator1 = map(density, 0, 1023, 50000, 600) + random(1000);
   if (now - before0_dual > timeOscillator0) {
     before0_dual = now;
     osc0_dual = !osc0_dual;
@@ -97,7 +110,8 @@ void loop()
   }
   oscOut = osc0_dual ^ osc1_dual;
   digitalWrite(OUT_DUAL, oscOut);
-  
+
+  /*
   // mode 1 - square and noise oscs
   timeOscillator0 = map(intensity, 0, 1023, 10000, 100);
   timeOscillator1 = map(density, 0, 1023, 10000, 0);
@@ -140,9 +154,9 @@ void loop()
   if (now - before0_noise > timeOscillator0_noise) {
     before0_noise = now;
     out_density = map(density, 0, 1024, 1014, 10);
-    delta = random(out_density) * 5000; // this 5000 will need to be tweaked
+    delta = random(out_density) * 500000000; // this 5000 will need to be tweaked
     mode_noise = !mode_noise;
-    mode_noise ? timeOscillator0_noise delta : timeOscillator0_noise = delta * 3;
+    mode_noise ? timeOscillator0_noise = delta : timeOscillator0_noise = delta * 3;
   }
   if (mode_noise) { // making noise
     out_intensity = map(intensity, 0, 1023, 1, 255);
